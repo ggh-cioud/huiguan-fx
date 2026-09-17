@@ -4,6 +4,7 @@ import { access, cp, mkdir, rm } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { resolve } from "node:path";
 import type { Plugin } from "vite";
+import { hostingConfigPath } from "./hosting-config";
 
 const localUserId = "local_seedy";
 const localEmail = "seedy@sites.test";
@@ -173,7 +174,7 @@ export function sites(): Plugin {
       if (command !== "build") return;
 
       const outputDirectory = resolve(root, "dist", ".openai");
-      const hostingConfig = resolve(root, ".openai", "hosting.json");
+      const hostingConfig = hostingConfigPath(root);
       const drizzleSource = resolve(root, "drizzle");
 
       await rm(outputDirectory, { recursive: true, force: true });

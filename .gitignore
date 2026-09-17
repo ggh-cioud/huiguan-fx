@@ -47,3 +47,6 @@ next-env.d.ts
 /work/
 *.tsbuildinfo
 /.verification/
+
+# Personal Sites registration; use the public template in a fresh clone.
+/.openai/hosting.json

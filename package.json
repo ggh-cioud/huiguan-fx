@@ -1,6 +1,12 @@
 {
-  "name": "site-creator-vinext-starter",
+  "name": "huiguan-fx",
   "version": "0.1.0",
+  "description": "Chinese currency dashboard with hourly reference rates, conversion and local alerts.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ggh-cioud/huiguan-fx.git"
+  },
   "private": true,
   "engines": {
     "node": ">=22.13.0"
