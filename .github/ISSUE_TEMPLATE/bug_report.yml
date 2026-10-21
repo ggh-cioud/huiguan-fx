@@ -1,0 +1,22 @@
+name: 问题反馈
+description: 报告可复现的问题
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤与预期结果
+      description: 请说明操作、货币对、时间范围和实际看到的结果。
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境与数据口径
+      description: 操作系统、浏览器、Node.js 版本、小时或每日模式、页面显示的报价时间。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 截图或错误提示（可选）
+      description: 请勿粘贴 App ID、API Key、.env.local 或其他私人信息。

@@ -17,6 +17,17 @@ export async function requestJson<T>(url: string, signal?: AbortSignal): Promise
   if (!response.ok) throw new Error(json?.error || "数据暂时不可用，请稍后重试。");
   return json as T;
 }
+export function useQuoteClock() {
+  const [now, setNow] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    const update = () => setNow(Date.now());
+    update();
+    const timer = window.setInterval(update, 60000);
+    document.addEventListener("visibilitychange", update);
+    return () => { window.clearInterval(timer); document.removeEventListener("visibilitychange", update); };
+  }, []);
+  return now;
+}
 export function useSnapshot(base: string, tick: number, ready: boolean) {
   const [data, setData] = useState<Snapshot | null>(null), [loading, setLoading] = useState(true), [error, setError] = useState(""), [cached, setCached] = useState(false);
   useEffect(() => {

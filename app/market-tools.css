@@ -1,0 +1,77 @@
+.section-nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  border-bottom: 1px solid var(--border); margin: -5px 0 22px; padding-bottom: 15px;
+  font-size: 13px; color: #a4b4c7;
+}
+.section-nav > div { display: flex; gap: 24px; }
+.section-nav a { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; }
+.section-nav a:hover, .feedback-link:hover { color: var(--primary); }
+.currency-select {
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 40px; border: 1px solid #304154; border-radius: 8px;
+  background: #111c27; color: var(--foreground); padding: 7px 12px; text-align: left;
+}
+.currency-select > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.currency-select > svg { flex-shrink: 0; color: #a5b5c7; }
+.currency-picker { width: 300px; max-width: calc(100vw - 32px); padding: 0; }
+.currency-picker [data-slot="command-input-wrapper"] { height: 46px; }
+.currency-picker [data-slot="command-item"] { min-height: 42px; cursor: pointer; }
+.picker-code { width: 38px; flex-shrink: 0; font-family: var(--font-mono); color: #bfccd9; }
+.picker-check { margin-left: auto; color: var(--primary) !important; }
+.history-tools { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.history-tools .export-history { width: 40px; height: 40px; flex-shrink: 0; border: 1px solid var(--border); }
+.table-controls .export-rates { min-height: 38px; padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+.converter-body { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; }
+.converter-body .amount-input { margin-bottom: 0; }
+.converter-body .swap-row { margin: 0; }
+.converter-body .conversion-result { margin-top: 0; }
+.converter-body .conversion-note { margin-top: 0; }
+.amount-presets { display: flex; gap: 8px; margin-top: 8px; }
+.amount-presets button {
+  flex: 1; padding: 4px 8px; min-height: 32px; border: 1px solid #2b3b4d;
+  border-radius: 6px; color: #9eb0c3; background: #101923; font: 12px var(--font-mono);
+}
+.amount-presets button[aria-pressed="true"] { color: var(--primary); border-color: #60753d; background: #1e2b1b; }
+.conversion-result.stale-result { border-color: #775e30; background: #2b261c; }
+.stale-result strong, .stale-result p, .stale-result > span { color: #f0d093; }
+.feedback-link { font-size: 13px; color: #b4c1d0; white-space: nowrap; }
+button:disabled { cursor: not-allowed; }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+
+@media (max-width: 1100px) {
+  .table-controls { flex-wrap: wrap; }
+  .table-controls .search-box { min-width: 160px; }
+}
+@media (max-width: 720px) {
+  .converter-body {
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    grid-template-areas: "amount amount" "from result" "swap result" "to result" "note note";
+    column-gap: 14px; row-gap: 12px;
+  }
+  .converter-body > .converter-amount { grid-area: amount; }
+  .converter-body > .converter-from { grid-area: from; }
+  .converter-body > .swap-row { grid-area: swap; }
+  .converter-body > .converter-to { grid-area: to; }
+  .converter-body > .conversion-result { grid-area: result; }
+  .converter-body > .conversion-note { grid-area: note; }
+  .converter-from, .converter-to { min-width: 0; }
+  .amount-presets button { min-height: 40px; }
+  .table-controls { display: grid; grid-template-columns: minmax(0,1fr) auto; width: 100%; }
+  .table-controls .search-box { grid-column: 1/-1; grid-row: 1; width: 100%; min-width: 0; }
+  .table-controls .export-rates { justify-self: start; min-height: 40px; }
+  .table-controls .sort-select { min-height: 40px; width: 130px; }
+  .history-tools { gap: 5px; }
+  .history-heading .history-tools .currency-select { width: 120px; }
+  .history-heading { flex-wrap: wrap; }
+  .currency-cell .star-button { width: 36px; min-height: 40px; padding: 8px; }
+  .period-radio > label { min-height: 40px; display: flex; align-items: center; }
+  footer { flex-wrap: wrap; gap: 10px; }
+}
+@media (max-width: 400px) {
+  .section-nav { gap: 10px; font-size: 12px; }
+  .section-nav > div { gap: 12px; }
+  .section-nav > a { gap: 4px; }
+  .section-nav > a > span { display: none; }
+  .history-tools { margin-left: auto; }
+  .history-heading .history-tools .currency-select { width: 132px; }
+}

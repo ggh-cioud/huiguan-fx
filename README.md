@@ -2,9 +2,11 @@
 
 中文汇率查询工具：小时参考报价、历史日线、双向换算和本机到价提醒。基于 React、TypeScript、Vinext / Vite 与 Cloudflare Workers 本地运行环境。
 
+[![检查状态](https://github.com/ggh-cioud/huiguan-fx/actions/workflows/checks.yml/badge.svg)](https://github.com/ggh-cioud/huiguan-fx/actions/workflows/checks.yml) · [更新记录](CHANGELOG.md) · [参与贡献](CONTRIBUTING.md) · [问题反馈](https://github.com/ggh-cioud/huiguan-fx/issues/new/choose)
+
 ![汇观 FX 桌面界面](docs/dashboard.jpg)
 
-截图为运行时快照，报价与时间以实际数据源为准。
+截图为 0.1.0 版本的运行时快照；0.2.0 新增搜索选择器与导出工具。报价与时间以实际数据源为准。
 
 ## 功能
 
@@ -14,6 +16,17 @@
 - **双向换算**：自动计算交叉汇率，不包含银行买卖价差和手续费。
 - **本机提醒**：高于或低于目标时触发一次；自选、提醒和设置保存在当前浏览器。
 - **状态透明**：区分小时报价、每日备用数据和缓存，接口异常时保留原始报价时间，不生成模拟行情。
+- **快捷查找**：货币选择器支持中文、英文和代码搜索；列表搜索可覆盖全部货币，自选范围保持独立。
+- **数据导出**：列表导出全部筛选结果，历史日线独立导出 CSV，保留原始精度、来源、时间和过期标记。
+- **窄屏与键盘**：提供分区导航、常用换算金额、键盘选择货币及较大的移动端触控目标。
+
+## CSV 与本地使用
+
+在汇率列表点击“导出 CSV”，导出的是当前搜索、范围和排序下的**全部结果**，不受“显示更多”分页限制。历史日线右上角的下载按钮导出选定货币对与时间范围。CSV 为带 BOM 的 UTF-8，方便 Excel 等表格软件读取中文；报价数值使用未格式化精度。
+
+导出包含数据源、频率、原始报价时间、获取时间和导出时间。小时报价的时间列使用 UTC，每日日线保留报价日期；网页中的小时报价则显示北京时间。文本字段会处理可能被表格软件当作公式执行的内容。
+
+暂停自动更新后，页面仍每分钟及重新显示时检查报价年龄，更新过期提示；这项检查不访问数据源，也不增加上游额度消耗。
 
 ## 快速开始
 
@@ -75,21 +88,20 @@ npm run start -- --port 5173
 ## 开发与验证
 
 ```sh
-node node_modules/typescript/bin/tsc --noEmit
-node scripts/verify-domain.mjs
-node scripts/verify-hourly.mjs
+npm run check
 npm run build
 ```
 
 本地服务运行后，在 PowerShell 7.5 或更新版本执行 `./scripts/verify-api.ps1 -ExpectedFrequency hourly`，再运行 `node scripts/verify-secrets.mjs`。这两项检查需要有效的本机 App ID 和网络，结果写入被 Git 忽略的 `outputs/`。
 
-固定规则检查覆盖日常换算、小时缓存边界、并发请求合并、同源涨跌幅、失败处理和提醒失效条件。集成检查验证真实接口响应；密钥检查只报告是否泄漏，不输出密钥。可控时钟测试不等同于持续运行一小时的现场计时验证。
+固定规则检查覆盖日常换算、小时缓存边界、并发请求合并、同源涨跌幅、失败处理、提醒失效条件、CSV 公式注入防护、导出精度和筛选排序。GitHub Actions 在 Windows 与 Linux 上执行类型检查、29 项固定样本检查和构建，无需提供密钥。集成检查验证真实接口响应；密钥检查只报告是否泄漏，不输出密钥。可控时钟测试不等同于持续运行一小时的现场计时验证。
 
 | 路径 | 作用 |
 | --- | --- |
 | `app/dashboard.tsx`、`app/fx-components.tsx` | 页面、图表与换算界面 |
 | `app/use-market.ts`、`app/rate-alerts.tsx` | 浏览器缓存与到价提醒 |
 | `lib/fx.ts` | 数据类型、换算与提醒规则 |
+| `lib/fx-export.ts`、`lib/market-view.ts` | CSV 导出、筛选排序与报价过期统计 |
 | `lib/oxr.ts` | 小时报价、认证、请求合并与持久缓存 |
 | `lib/fx-server.ts`、`app/api/` | 服务端接口与数据源适配 |
 | `scripts/sites-env.mjs` | 启动时读取项目根目录的本机环境配置 |
@@ -97,3 +109,5 @@ npm run build
 ## 许可证
 
 项目代码采用 [MIT 许可证](LICENSE)。第三方代码与数据说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+欢迎按 [贡献指南](CONTRIBUTING.md) 提交改进；敏感问题请先阅读 [安全反馈说明](SECURITY.md)。

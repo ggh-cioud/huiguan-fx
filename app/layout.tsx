@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./market-tools.css";
 
 export const metadata: Metadata = {
   title: "汇观 FX · 全球汇率看板",
-  description: "查看全球小时参考汇率、每日历史走势与货币换算，收藏关注币种并设置本机到价提醒。",
+  description: "中文开源汇率看板：查询小时参考汇率、历史日线与货币换算，搜索和收藏币种，导出带来源的 CSV，并设置本机到价提醒。",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
