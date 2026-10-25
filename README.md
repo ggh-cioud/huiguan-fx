@@ -1,6 +1,6 @@
 # 汇观 FX · 全球汇率看板
 
-中文汇率查询工具：小时参考报价、历史日线、双向换算和本机到价提醒。基于 React、TypeScript、Vinext / Vite 与 Cloudflare Workers 本地运行环境。
+中英文汇率查询工具：小时参考报价、历史日线、双向换算和本机到价提醒。基于 React、TypeScript、Vinext / Vite 与 Cloudflare Workers 本地运行环境。
 
 [![检查状态](https://github.com/ggh-cioud/huiguan-fx/actions/workflows/checks.yml/badge.svg)](https://github.com/ggh-cioud/huiguan-fx/actions/workflows/checks.yml) · [更新记录](CHANGELOG.md) · [参与贡献](CONTRIBUTING.md) · [问题反馈](https://github.com/ggh-cioud/huiguan-fx/issues/new/choose)
 
@@ -10,6 +10,7 @@
 
 ## 功能
 
+- **中英切换**：右上角“中文 / EN”即时切换，覆盖货币名称、图表、换算、提醒、错误提示和 CSV；记住当前浏览器的选择。
 - **小时报价**：Open Exchange Rates 提供当前报价，列表、换算和提醒共享缓存，显示实际发布时间（北京时间）。
 - **货币列表**：人民币为默认基准，支持切换基准、中文或代码搜索、排序、常用及自选列表。
 - **历史日线**：Frankfurter 提供 7 天、30 天、90 天、1 年区间，支持悬浮查看和展开数据。
@@ -19,6 +20,14 @@
 - **快捷查找**：货币选择器支持中文、英文和代码搜索；列表搜索可覆盖全部货币，自选范围保持独立。
 - **数据导出**：列表导出全部筛选结果，历史日线独立导出 CSV，保留原始精度、来源、时间和过期标记。
 - **窄屏与键盘**：提供分区导航、常用换算金额、键盘选择货币及较大的移动端触控目标。
+
+## 界面语言
+
+首次访问默认中文，点击右上角 **EN** 切换英文，点击 **中文** 切回。选择保存在当前浏览器并在刷新后恢复，同源标签页之间会同步。切换语言不会重置当前货币、换算金额、筛选、自选或提醒，也不会额外请求汇率接口。
+
+两种语言均支持按中文名、英文名和货币代码搜索。CSV 表头、货币名称、数据源说明及过期标记随当前语言导出，数值精度、UTC 时间和每日数据日期保持原样。网页里的小时报价统一使用北京时间 / UTC+8；切换语言不改变时区和汇率含义。浏览器禁止本地存储时仍可切换，但选择无法持久保存。
+
+**English:** Use **EN** in the header to switch the entire dashboard to English. Your browser remembers the choice. Search by currency code, Chinese name or English name; CSV downloads follow the selected language. Quote times use **UTC+8**, and all rates are for reference only.
 
 ## CSV 与本地使用
 
@@ -94,12 +103,13 @@ npm run build
 
 本地服务运行后，在 PowerShell 7.5 或更新版本执行 `./scripts/verify-api.ps1 -ExpectedFrequency hourly`，再运行 `node scripts/verify-secrets.mjs`。这两项检查需要有效的本机 App ID 和网络，结果写入被 Git 忽略的 `outputs/`。
 
-固定规则检查覆盖日常换算、小时缓存边界、并发请求合并、同源涨跌幅、失败处理、提醒失效条件、CSV 公式注入防护、导出精度和筛选排序。GitHub Actions 在 Windows 与 Linux 上执行类型检查、29 项固定样本检查和构建，无需提供密钥。集成检查验证真实接口响应；密钥检查只报告是否泄漏，不输出密钥。可控时钟测试不等同于持续运行一小时的现场计时验证。
+固定规则检查覆盖日常换算、小时缓存边界、并发请求合并、同源涨跌幅、失败处理、提醒失效条件、CSV 公式注入防护、导出精度和筛选排序，以及双语动态文案、错误提示和 CSV 数据一致性。GitHub Actions 配置为在 Windows 与 Linux 上执行类型检查、33 项固定样本检查和构建，无需提供密钥。集成检查验证真实接口响应；密钥检查只报告是否泄漏，不输出密钥。可控时钟测试不等同于持续运行一小时的现场计时验证。
 
 | 路径 | 作用 |
 | --- | --- |
 | `app/dashboard.tsx`、`app/fx-components.tsx` | 页面、图表与换算界面 |
 | `app/use-market.ts`、`app/rate-alerts.tsx` | 浏览器缓存与到价提醒 |
+| `app/language-provider.tsx`、`lib/i18n.ts` | 语言记忆、文案与货币名称本地化 |
 | `lib/fx.ts` | 数据类型、换算与提醒规则 |
 | `lib/fx-export.ts`、`lib/market-view.ts` | CSV 导出、筛选排序与报价过期统计 |
 | `lib/oxr.ts` | 小时报价、认证、请求合并与持久缓存 |

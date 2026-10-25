@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { alertMatches, formatRate, formatQuoteTime, type Snapshot, type HistoryData, type PairRate, type RateAlert } from "@/lib/fx";
+import { alertMatches, formatRate, type Snapshot, type HistoryData, type PairRate, type RateAlert } from "@/lib/fx";
+import { resolveLocale, translate } from "@/lib/i18n";
+import { useLanguage } from "./language-provider";
 
 export function readLocal<T>(key: string, fallback: T): T {
   try { const value = localStorage.getItem(key); return value ? JSON.parse(value) as T : fallback; } catch { return fallback; }
@@ -9,7 +11,7 @@ export function readLocal<T>(key: string, fallback: T): T {
 let storageWarned = false;
 export function writeLocal(key: string, value: unknown) {
   try { localStorage.setItem(key, JSON.stringify(value)); }
-  catch { if (!storageWarned) { storageWarned = true; toast.warning("浏览器无法保存本机数据，关闭页面后设置可能丢失。"); } }
+  catch { if (!storageWarned) { storageWarned = true; toast.warning(translate(resolveLocale(document.documentElement.lang), "浏览器无法保存本机数据，关闭页面后设置可能丢失。")); } }
 }
 export async function requestJson<T>(url: string, signal?: AbortSignal): Promise<T> {
   const response = await fetch(url, { signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(40000)]) : AbortSignal.timeout(40000) });
@@ -68,6 +70,8 @@ export function validAlert(value: unknown): value is RateAlert {
   return typeof a.id==="string" && /^[A-Z]{3}$/.test(a.from) && /^[A-Z]{3}$/.test(a.to) && a.from!==a.to && ["above","below"].includes(a.direction) && Number.isFinite(a.target) && a.target>0 && typeof a.createdAt==="string" && (a.triggeredAt===null || typeof a.triggeredAt==="string");
 }
 export function useAlerts(tick: number, ready: boolean) {
+  const language = useLanguage();
+  const languageRef = useRef(language); languageRef.current = language;
   const [alerts,setAlerts]=useState<RateAlert[]>([]),[loaded,setLoaded]=useState(false),[status,setStatus]=useState("");
   const alertsRef=useRef(alerts); alertsRef.current=alerts;
   useEffect(()=>{ const saved=readLocal<unknown>("huiguan.alerts",[]);setAlerts(Array.isArray(saved)?saved.filter(validAlert).slice(0,20):[]);setLoaded(true); },[]);
@@ -93,7 +97,8 @@ export function useAlerts(tick: number, ready: boolean) {
         return next;
       });
       setAlerts(updated);
-      triggered.forEach(a=>toast.success(`${a.from}/${a.to} 已${a.direction==="above"?"达到":"降至"}目标`,{description:`当前参考价 ${formatRate(a.lastRate!)} · 报价时间 ${formatQuoteTime(a.lastDate!)}`,duration:12000}));
+      const { t, quoteTime } = languageRef.current;
+      triggered.forEach(a=>toast.success(t(a.direction==="above"?"{from}/{to} 已达到目标":"{from}/{to} 已降至目标",{from:a.from,to:a.to}),{description:t("当前参考价 {rate} · 报价时间 {time}",{rate:formatRate(a.lastRate!),time:quoteTime(a.lastDate!)}),duration:12000}));
       setStatus(results.some(r=>r.status==="rejected")?"部分提醒未能完成检查，稍后自动重试。":"已检查 · 仅对有效且未过期的报价触发");
     });
     return ()=>controller.abort();

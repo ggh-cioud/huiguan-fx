@@ -1,2 +1,3 @@
 import Dashboard from "./dashboard";
-export default function Home() { return <Dashboard />; }
+import { LanguageProvider } from "./language-provider";
+export default function Home() { return <LanguageProvider><Dashboard /></LanguageProvider>; }

@@ -38,6 +38,46 @@
 button:disabled { cursor: not-allowed; }
 button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
 
+.language-switch { display: flex; flex-shrink: 0; padding: 3px; gap: 3px; border: 1px solid #334254; border-radius: 9px; background: #111c27; }
+.language-switch button { min-width: 43px; min-height: 34px; padding: 4px 9px; border: 0; border-radius: 6px; color: #9eafc3; background: transparent; font-size: 13px; font-weight: 600; }
+.language-switch button[aria-pressed="true"] { background: #293b24; color: var(--primary); }
+.language-switch button:hover { color: #edf2f9; }
+.topbar .header-bell { margin-left: 0; }
+.heading-actions { display: flex; gap: 10px; }
+footer > span > a { margin-left: 4px; }
+.chart-footnote { flex-wrap: wrap; }
+.chart-footnote > span:last-child { flex-basis: 100%; }
+.quote-card-label > div { min-width: 0; }
+.quote-card-label > div > span { line-height: 1.5; }
+html[lang="en"] .brand strong { letter-spacing: -.5px; }
+html[lang="en"] .sort-select { width: 160px; }
+html[lang="en"] .rates-panel [data-slot="table-head"] { white-space: normal; }
+html[lang="en"] .rates-heading { flex-wrap: wrap; }
+
+@media (max-width: 720px) {
+  .topbar { gap: 12px; }
+  .topbar-title, .topbar .reference-badge { display: none; }
+  .language-switch { margin-left: auto; }
+  .language-switch button { min-height: 38px; }
+  .market-toolbar { flex-wrap: wrap; }
+  .section-nav { flex-wrap: wrap; gap: 8px; }
+  html[lang="en"] .quote-card-bottom { flex-wrap: wrap; }
+  html[lang="en"] .quote-card-bottom .sparkline { display: none; }
+  html[lang="en"] .heading-row { flex-wrap: wrap; }
+  html[lang="en"] .comparison-date { white-space: normal; }
+  html[lang="en"] .alert-target { flex-wrap: wrap; }
+  html[lang="en"] .alert-target > * { flex: 1; }
+}
+@media (max-width: 400px) {
+  .topbar { padding: 0 14px; gap: 10px; }
+  .brand { gap: 8px; }
+  .brand-icon { width: 32px; height: 32px; }
+  .brand strong { font-size: 18px; }
+  .brand strong > span { font-size: 11px; margin-left: 5px; }
+  .language-switch button { min-width: 37px; padding: 4px 6px; }
+  .topbar .header-bell { width: 32px; }
+}
+
 @media (max-width: 1100px) {
   .table-controls { flex-wrap: wrap; }
   .table-controls .search-box { min-width: 160px; }
