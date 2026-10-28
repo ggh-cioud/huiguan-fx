@@ -31,13 +31,14 @@ export async function getCurrencies(): Promise<Currency[]> {
   const rows = await fetchJson<RawCurrency[]>("currencies", 86400000);
   return rows.filter(r => /^[A-Z]{3}$/.test(r.iso_code) && !NON_CURRENCY.has(r.iso_code)).map(r => ({ code: r.iso_code, name: currencyName(r.iso_code, r.name), englishName: r.name, symbol: r.symbol }));
 }
-async function getDailySnapshot(base: string): Promise<Snapshot> {
+async function getDailySnapshot(base: string, details = true): Promise<Snapshot> {
   checkCode(base);
   const [currencies, raw] = await Promise.all([getCurrencies(), fetchJson<RawRate[]>(`rates?base=${base}`)]);
   if (!currencies.some(c => c.code === base)) throw new FxError("暂不支持所选货币。", 404);
   const latest = raw.filter(r => validRate(r) && r.base === base && r.quote !== base && currencies.some(c => c.code === r.quote));
   if (!latest.length) throw new FxError("数据源暂未提供可用汇率。");
   const end = latest.reduce((date, r) => r.date > date ? r.date : date, latest[0].date);
+  if (!details) return { base, currencies, quotes: latest.map(row => ({ ...currencies.find(c => c.code === row.quote)!, date: row.date, rate: 1 / row.rate, change: null, previousDate: null, points: [] })), fetchedAt: new Date().toISOString(), source: DAILY_SOURCE, frequency: "daily", historyAvailable: false, setupRequired: true };
   const [previousResult, historyResult] = await Promise.allSettled([
     fetchJson<RawRate[]>(`rates?base=${base}&date=${dateBefore(end, 1)}`),
     fetchJson<RawRate[]>(`rates?base=${base}&quotes=${COMMON.filter(c => c !== base).slice(0,12).join(",")}&from=${dateBefore(end, 14)}&to=${end}`),
@@ -74,14 +75,15 @@ function crossRate(data: HourlyRates, from: string, to: string) {
   if (!Number.isFinite(rate) || rate <= 0) throw new FxError("这组货币暂时没有有效报价。");
   return rate;
 }
-export async function getSnapshot(base: string): Promise<Snapshot> {
+export async function getSnapshot(base: string, details = true): Promise<Snapshot> {
   checkCode(base);
-  if (!hourlySource.configured()) return getDailySnapshot(base);
+  if (!hourlySource.configured()) return getDailySnapshot(base, details);
   const latest = await hourlySource.latest();
   crossRate(latest, base, base);
   const currencies = hourlyCurrencies(latest);
   const date = new Date(latest.timestamp * 1000).toISOString();
   const day = date.slice(0, 10);
+  if (!details) return { base, currencies, quotes: currencies.filter(c => c.code !== base).map(currency => ({ ...currency, rate: crossRate(latest, currency.code, base), date, change: null, previousDate: null, points: [] })), fetchedAt: latest.fetchedAt, nextUpdateAt: latest.nextUpdateAt, source: HOURLY_SOURCE, frequency: "hourly", historyAvailable: false, setupRequired: false };
   const [previousResult, trendResult] = await Promise.allSettled([
     hourlySource.previousDay(latest.timestamp),
     fetchJson<RawRate[]>(`rates?base=${base}&quotes=${COMMON.filter(c => c !== base).slice(0,12).join(",")}&from=${dateBefore(day, 14)}&to=${day}`),

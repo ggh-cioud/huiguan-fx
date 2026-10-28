@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { toast } from "sonner";
 import { formatQuoteTime, percent } from "@/lib/fx";
 import { LANGUAGE_STORAGE_KEY, resolveLocale, translate, localizeError, localizedCurrencyName, type Locale } from "@/lib/i18n";
+import { readSharedQuery } from "@/lib/query-state";
 
 function languageTools(locale: Locale) {
   return {
@@ -22,13 +23,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   // Match server markup on first render. Storage is read only after hydration.
   const [locale, updateLocale] = useState<Locale>("zh-CN");
   useEffect(() => {
-    try { updateLocale(resolveLocale(JSON.parse(localStorage.getItem(LANGUAGE_STORAGE_KEY) || "null"))); } catch { /* Keep Chinese when storage is unavailable. */ }
+    const shared = readSharedQuery(window.location.hash);
+    if (shared) updateLocale(shared.locale);
+    else try { updateLocale(resolveLocale(JSON.parse(localStorage.getItem(LANGUAGE_STORAGE_KEY) || "null"))); } catch { /* Keep Chinese when storage is unavailable. */ }
+    const onHash = () => { const value = readSharedQuery(window.location.hash); if (value) updateLocale(value.locale); };
+    window.addEventListener("hashchange", onHash);
     const sync = (event: StorageEvent) => {
       if (event.key !== LANGUAGE_STORAGE_KEY && event.key !== null) return;
       try { updateLocale(resolveLocale(event.newValue ? JSON.parse(event.newValue) : null)); } catch { updateLocale("zh-CN"); }
     };
     window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
+    return () => { window.removeEventListener("storage", sync); window.removeEventListener("hashchange", onHash); };
   }, []);
   useEffect(() => {
     document.documentElement.lang = locale;

@@ -32,36 +32,47 @@ export function useQuoteClock() {
 }
 export function useSnapshot(base: string, tick: number, ready: boolean) {
   const [data, setData] = useState<Snapshot | null>(null), [loading, setLoading] = useState(true), [error, setError] = useState(""), [cached, setCached] = useState(false);
+  const [detailsLoading, setDetailsLoading] = useState(false), [detailsError, setDetailsError] = useState("");
   useEffect(() => {
     if (!ready) return;
     const controller = new AbortController();
     const saved = readLocal<Snapshot | null>(`huiguan.snapshot.v2.${base}`, null);
     if (saved && ["daily","hourly"].includes(saved.frequency) && saved.base === base && typeof saved.fetchedAt === "string" && Array.isArray(saved.quotes) && saved.quotes.every(q=>q && typeof q.code==="string" && typeof q.name==="string" && typeof q.englishName==="string" && typeof q.date==="string" && Number.isFinite(q.rate) && q.rate>0 && (q.change===null||Number.isFinite(q.change)) && Array.isArray(q.points) && q.points.every(p=>p && typeof p.date==="string" && Number.isFinite(p.rate) && p.rate>0)) && Array.isArray(saved.currencies) && saved.currencies.every(c=>c&&typeof c.code==="string"&&typeof c.name==="string")) { setData(saved); setCached(true); }
-    setLoading(true); setError("");
-    requestJson<Snapshot>(`/api/rates?base=${base}`, controller.signal).then(value => {
+    setLoading(true); setError(""); setDetailsError(""); setDetailsLoading(false);
+    requestJson<Snapshot>(`/api/rates?base=${base}&view=quotes`, controller.signal).then(async value => {
       if (controller.signal.aborted) return;
       setData(value); setCached(false); writeLocal(`huiguan.snapshot.v2.${base}`, value);
+      setLoading(false); setDetailsLoading(true);
+      try {
+        const full = await requestJson<Snapshot>(`/api/rates?base=${base}&view=full`, controller.signal);
+        if (controller.signal.aborted) return;
+        setData(full); writeLocal(`huiguan.snapshot.v2.${base}`, full);
+      } catch {
+        if (!controller.signal.aborted) setDetailsError("历史对比暂不可用，当前报价不受影响。");
+      } finally { if (!controller.signal.aborted) setDetailsLoading(false); }
     }).catch(error => { if (!controller.signal.aborted) { setError(error instanceof Error ? error.message : "连接暂时中断，请核对报价时间。"); setCached(true); } }).finally(()=>{ if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [base,tick,ready]);
-  return { data: data?.base === base ? data : null, loading, error, cached };
+  return { data: data?.base === base ? data : null, loading, error, cached, detailsLoading, detailsError };
 }
-export function useHistory(from: string, to: string, days: number, tick: number) {
+export function useHistory(from: string, to: string, days: number, tick: number, ready = true) {
   const [data,setData]=useState<HistoryData | null>(null), [loading,setLoading]=useState(true), [error,setError]=useState("");
   useEffect(()=>{
+    if (!ready) return;
     const controller=new AbortController(); setData(null); setLoading(true); setError("");
     requestJson<HistoryData>(`/api/history?from=${from}&to=${to}&days=${days}`,controller.signal).then(v=>{ if(!controller.signal.aborted)setData(v); }).catch(error=>{ if(!controller.signal.aborted)setError(error instanceof Error ? error.message : "暂时无法连接历史数据源，请稍后重试。"); }).finally(()=>{ if(!controller.signal.aborted)setLoading(false); });
     return ()=>controller.abort();
-  },[from,to,days,tick]);
+  },[from,to,days,tick,ready]);
   return { data: data?.from===from && data.to===to && data.days===days ? data : null, loading, error };
 }
-export function usePair(from: string, to: string, tick: number) {
+export function usePair(from: string, to: string, tick: number, ready = true) {
   const [pair,setPair]=useState<PairRate | null>(null),[error,setError]=useState("");
   useEffect(()=>{
+    if (!ready) return;
     const controller=new AbortController();setPair(current=>current?.from===from&&current.to===to?current:null);setError("");
     requestJson<PairRate>(`/api/quote?from=${from}&to=${to}`,controller.signal).then(v=>{ if(!controller.signal.aborted)setPair(v); }).catch(error=>{ if(!controller.signal.aborted)setError(error instanceof Error ? error.message : "暂无可用换算报价，请刷新重试。"); });
     return ()=>controller.abort();
-  },[from,to,tick]);
+  },[from,to,tick,ready]);
   return { pair: pair?.from===from && pair.to===to ? pair : null, error, setPair };
 }
 export function validAlert(value: unknown): value is RateAlert {

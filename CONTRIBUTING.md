@@ -11,9 +11,11 @@
 ```sh
 npm run check
 npm run build
+npm run test:browser:install
+npm run test:browser
 ```
 
-CI 在 Windows 和 Linux 上执行同样的类型检查、固定样本检查和生产构建。真实数据源检查需要本机密钥，单独运行 `scripts/verify-api.ps1` 和 `scripts/verify-secrets.mjs`，不向 CI 提供维护者密钥。
+CI 在 Windows 和 Linux 上执行同样的类型检查、固定样本检查和生产构建，Linux 另运行桌面和手机尺寸的 Chromium 浏览器流程。浏览器测试使用独立上下文与固定接口样本，不使用用户已有浏览器或上游额度；失败截图与跟踪写入 `outputs/`。真实数据源检查需要本机密钥，单独运行 `scripts/verify-api.ps1` 和 `scripts/verify-secrets.mjs`，不向 CI 提供维护者密钥。
 
 ## 数据与行为约定
 

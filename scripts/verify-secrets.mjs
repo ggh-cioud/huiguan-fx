@@ -19,7 +19,7 @@ for (const folder of ['dist/client', 'dist/server']) {
   }
   checks.push(`App ID is absent from ${folder}`);
 }
-for (const route of ['/', '/api/rates?base=CNY', '/api/quote?from=USD&to=CNY']) {
+for (const route of ['/', '/api/rates?base=CNY', '/api/rates?base=CNY&view=quotes', '/api/quote?from=USD&to=CNY']) {
   const response = await fetch(`http://127.0.0.1:5173${route}`, { signal: AbortSignal.timeout(30000) });
   assert.equal(response.status, 200);
   assert.ok(!(await response.text()).includes(secret), `App ID must not occur in response: ${route}`);

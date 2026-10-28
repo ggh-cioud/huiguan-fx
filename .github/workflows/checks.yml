@@ -31,3 +31,18 @@ jobs:
       - run: npm run install:ci
       - run: npm run check
       - run: npm run build
+      - name: Install test browser
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps --only-shell chromium
+      - name: Browser workflows (desktop and mobile sizes)
+        if: runner.os == 'Linux'
+        run: npm run test:browser
+      - name: Preserve browser test report
+        if: failure() && runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-report
+          path: |
+            outputs/playwright-report
+            outputs/playwright-results
+          retention-days: 7

@@ -36,6 +36,31 @@
 .stale-result strong, .stale-result p, .stale-result > span { color: #f0d093; }
 .feedback-link { font-size: 13px; color: #b4c1d0; white-space: nowrap; }
 button:disabled { cursor: not-allowed; }
+.details-progress { color: #9eb0c3; font-size: 12px; margin: 14px 0 0; }
+.chart-skeleton { min-height: 260px; background: linear-gradient(180deg, #1c2d37, #111923); border-radius: 8px; }
+.alerts-loading { position: fixed; bottom: 20px; right: 20px; max-width: calc(100vw - 40px); padding: 14px 20px; border: 1px solid var(--border); background: #111923; border-radius: 10px; z-index: 50; }
+.alerts-loading p { margin: 10px 0; }
+.alerts-loading button { margin: 5px; }
+.conversion-result strong { overflow-wrap: anywhere; }
+.conversion-modes { display: flex; padding: 3px; border: 1px solid var(--border); border-radius: 8px; gap: 4px; }
+.conversion-modes button { flex: 1; min-height: 38px; padding: 6px 8px; border-radius: 5px; font-size: 13px; color: #a4b4c7; }
+.conversion-modes button[aria-pressed="true"] { background: #293b24; color: var(--primary); }
+.conversion-costs { min-width: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 0; font-size: 12px; }
+.conversion-costs summary { cursor: pointer; font-size: 13px; line-height: 1.7; }
+.conversion-costs summary > span { display: block; color: #9eb0c3; font-size: 11px; margin-left: 15px; }
+.cost-inputs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 14px; }
+.cost-inputs label { color: #a4b4c7; min-width: 0; }
+.cost-inputs input { margin-top: 6px; min-width: 0; width: 100%; }
+.conversion-costs p { margin-top: 10px; color: #9eb0c3; line-height: 1.7; }
+.conversion-breakdown { border-top: 1px solid #354a32; margin-top: 12px; padding-top: 10px; font-size: 11px; }
+.conversion-breakdown > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px; margin: 5px 0; }
+.conversion-breakdown dd { font-family: var(--font-mono); }
+.conversion-actions { display: grid; gap: 8px; }
+.copy-control { min-width: 0; }
+.copy-control .button { min-height: 40px; width: 100%; }
+.copy-hint { display: block; font-size: 11px; color: #9eb0c3; line-height: 1.6; margin-top: 7px; }
+.manual-copy { display: block; color: #b4c1d0; font-size: 12px; margin-top: 8px; }
+.manual-copy textarea { width: 100%; min-height: 85px; border: 1px solid var(--border); padding: 8px; margin-top: 8px; border-radius: 6px; overflow-wrap: anywhere; }
 button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
 
 .language-switch { display: flex; flex-shrink: 0; padding: 3px; gap: 3px; border: 1px solid #334254; border-radius: 9px; background: #111c27; }
@@ -85,10 +110,13 @@ html[lang="en"] .rates-heading { flex-wrap: wrap; }
 @media (max-width: 720px) {
   .converter-body {
     grid-template-columns: minmax(0,1fr) minmax(0,1fr);
-    grid-template-areas: "amount amount" "from result" "swap result" "to result" "note note";
+    grid-template-areas: "mode mode" "amount amount" "from from" "swap swap" "to to" "costs costs" "result result" "actions actions" "note note";
     column-gap: 14px; row-gap: 12px;
   }
   .converter-body > .converter-amount { grid-area: amount; }
+  .converter-body > .conversion-modes { grid-area: mode; }
+  .converter-body > .conversion-costs { grid-area: costs; }
+  .converter-body > .conversion-actions { grid-area: actions; }
   .converter-body > .converter-from { grid-area: from; }
   .converter-body > .swap-row { grid-area: swap; }
   .converter-body > .converter-to { grid-area: to; }
